@@ -1,0 +1,3 @@
+[GIN-debug] POST   /api/v1/login             --> main.router.func1 (4 handlers)
+[GIN-debug] GET    /api/v1/login             --> main.router.func2 (4 handlers)
+[GIN-debug] Listening and serving HTTP on :8080
