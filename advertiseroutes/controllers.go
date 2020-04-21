@@ -120,4 +120,9 @@ func Login(c *gin.Context) {
 }
 
 // CreateTokenAdvertisement for advertiser create
-func CreateTokenAdvertisement(c *gin.Context) {}
+func CreateTokenAdvertisement(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"claims": c.Keys["user_id"],
+	})
+
+}

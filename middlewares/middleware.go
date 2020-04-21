@@ -15,7 +15,9 @@ func hello(auths ...string) gin.HandlerFunc {
 }
 
 func respondWithError(c *gin.Context, code int, message interface{}) {
-	c.AbortWithStatusJSON(code, gin.H{"error": message})
+	c.AbortWithStatusJSON(code, gin.H{
+		"error":  message,
+		"status": false})
 }
 
 // TokenAuthMiddleware for auth
@@ -27,10 +29,15 @@ func TokenAuthMiddleware() gin.HandlerFunc {
 	// }
 	fmt.Print("YES")
 	return func(c *gin.Context) {
+
+		if c.Request.Header["Token"] == nil {
+			respondWithError(c, 401, "Authorization Missing")
+			return
+		}
 		t := c.Request.Header["Token"][0]
 
 		if t == "" {
-			respondWithError(c, 401, "API token required")
+			respondWithError(c, 401, "Auth token required")
 			return
 		}
 

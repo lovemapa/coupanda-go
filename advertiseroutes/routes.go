@@ -9,6 +9,7 @@ import (
 // AdvertismentRouter  #router for advertisment
 func AdvertismentRouter() *gin.Engine {
 	r := gin.Default()
+	r.Use(gin.Recovery())
 
 	v1 := r.Group("/v1")
 	{
