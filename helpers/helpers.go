@@ -21,7 +21,7 @@ func CreateToken(_id string) (string, error) {
 	atClaims := jwt.MapClaims{}
 	atClaims["authorized"] = true
 	atClaims["user_id"] = _id
-	atClaims["exp"] = time.Now().Add(time.Minute * 15).Unix()
+	atClaims["exp"] = time.Now().Add(time.Second*15).Unix() * 1000
 	at := jwt.NewWithClaims(jwt.SigningMethodHS256, atClaims)
 	token, err := at.SignedString([]byte("my_secret_key"))
 	if err != nil {

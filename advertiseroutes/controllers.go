@@ -1,6 +1,8 @@
 package routes
 
 import (
+	configuration "coupanda/configuration"
+
 	CONSTANTS "coupanda/constant"
 	helper "coupanda/helpers"
 	"coupanda/models"
@@ -35,7 +37,7 @@ func Register(c *gin.Context) {
 	userData.Password = string(hashedPassword)
 	userData.Date = time.Now().Round(time.Millisecond).UnixNano() / (int64(time.Millisecond) / int64(time.Nanosecond))
 
-	mongoSession := config.ConnectDb(config.Database)
+	mongoSession := configuration.ConnectDb(config.Database)
 	defer mongoSession.Close()
 
 	sessionCopy := mongoSession.Copy()
@@ -93,7 +95,7 @@ func Login(c *gin.Context) {
 		helper.RespondWithError(c, http.StatusBadRequest, LoginErr)
 	}
 
-	mongoSession := config.ConnectDb(config.Database)
+	mongoSession := configuration.ConnectDb(config.Database)
 	defer mongoSession.Close()
 
 	sessionCopy := mongoSession.Copy()
