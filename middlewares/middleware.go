@@ -1,10 +1,14 @@
 package middleware
 
 import (
+	"coupanda/configuration"
+	"coupanda/models"
 	"fmt"
+	"instituteNew/config"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"gopkg.in/mgo.v2/bson"
 )
 
 func hello(auths ...string) gin.HandlerFunc {
@@ -49,6 +53,24 @@ func TokenAuthMiddleware() gin.HandlerFunc {
 			}
 			return []byte("my_secret_key"), nil
 		})
+
+		var userData models.UserSignup
+		mongoSession := configuration.ConnectDb(config.Database)
+		defer mongoSession.Close()
+
+		sessionCopy := mongoSession.Copy()
+		defer sessionCopy.Close()
+
+		getCollection := sessionCopy.DB(config.Database).C("advertisement")
+
+		queryErr := getCollection.Find(bson.M{"token": t}).One(&userData)
+
+		if queryErr != nil {
+
+			respondWithError(c, 401, "Token is not correct")
+			return
+		}
+
 		claims, ok := tkn.Claims.(jwt.MapClaims)
 
 		if !ok || !tkn.Valid {
