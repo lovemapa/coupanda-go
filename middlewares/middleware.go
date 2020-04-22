@@ -61,7 +61,7 @@ func TokenAuthMiddleware() gin.HandlerFunc {
 		sessionCopy := mongoSession.Copy()
 		defer sessionCopy.Close()
 
-		getCollection := sessionCopy.DB(config.Database).C("advertisement")
+		getCollection := sessionCopy.DB(config.Database).C("advertisers")
 
 		queryErr := getCollection.Find(bson.M{"token": t}).One(&userData)
 
@@ -72,12 +72,11 @@ func TokenAuthMiddleware() gin.HandlerFunc {
 		}
 
 		claims, ok := tkn.Claims.(jwt.MapClaims)
-
 		if !ok || !tkn.Valid {
 			respondWithError(c, 401, "Unauthorized access")
 			return
 		}
-		c.Set("user_id", claims)
+		c.Set("user_id", claims["user_id"])
 		c.Next()
 	}
 }

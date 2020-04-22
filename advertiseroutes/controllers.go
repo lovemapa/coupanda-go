@@ -2,6 +2,7 @@ package routes
 
 import (
 	configuration "coupanda/configuration"
+	"reflect"
 
 	CONSTANTS "coupanda/constant"
 	helper "coupanda/helpers"
@@ -43,7 +44,7 @@ func Register(c *gin.Context) {
 	sessionCopy := mongoSession.Copy()
 	defer sessionCopy.Close()
 
-	getCollection := sessionCopy.DB(config.Database).C("advertisement")
+	getCollection := sessionCopy.DB(config.Database).C("advertisers")
 
 	index := mgo.Index{
 		Key:        []string{"email"},
@@ -101,7 +102,7 @@ func Login(c *gin.Context) {
 	sessionCopy := mongoSession.Copy()
 	defer sessionCopy.Close()
 
-	getCollection := sessionCopy.DB(config.Database).C("advertisement")
+	getCollection := sessionCopy.DB(config.Database).C("advertisers")
 
 	err := getCollection.Find(bson.M{"email": Login.Email}).One(&userData)
 	if err != nil {
@@ -123,8 +124,34 @@ func Login(c *gin.Context) {
 
 // CreateTokenAdvertisement for advertiser create
 func CreateTokenAdvertisement(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"claims": c.Keys["user_id"],
-	})
+
+	var advertismentModel models.Advertisment
+
+	val := reflect.ValueOf(c.Keys["user_id"])
+
+	advertismentModel.ID = bson.NewObjectId()
+	advertismentModel.Advertiser = bson.ObjectIdHex(val.String())
+	addErr := json.NewDecoder(c.Request.Body).Decode(&advertismentModel)
+	if addErr != nil {
+
+		helper.RespondWithError(c, http.StatusBadRequest, addErr)
+		return
+	}
+
+	mongoSession := configuration.ConnectDb(config.Database)
+	defer mongoSession.Close()
+
+	sessionCopy := mongoSession.Copy()
+	defer sessionCopy.Close()
+
+	getCollection := sessionCopy.DB(config.Database).C("advertisment")
+	err := getCollection.Insert(advertismentModel)
+
+	if err != nil {
+		helper.RespondWithError(c, http.StatusBadRequest, err)
+		return
+	}
+
+	helper.RespondWithSuccess(c, http.StatusOK, CONSTANTS.AdvertiseCreatedSuccssfully, advertismentModel)
 
 }
