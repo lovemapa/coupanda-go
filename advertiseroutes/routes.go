@@ -16,9 +16,11 @@ func AdvertismentRouter() *gin.Engine {
 
 		v1.POST("/register", Register)
 		v1.POST("/login", Login)
+		v1.GET("/getAdvertisements", GetAdvertisements)
 		v1.Use(middleware.TokenAuthMiddleware())
 		{
-			v1.POST("/createAdvertisemnt", CreateTokenAdvertisement)
+			v1.POST("/createAdvertisemnt", CreateAdvertisement)
+
 		}
 
 	}

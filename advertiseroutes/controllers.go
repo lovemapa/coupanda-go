@@ -122,8 +122,8 @@ func Login(c *gin.Context) {
 
 }
 
-// CreateTokenAdvertisement for advertiser create
-func CreateTokenAdvertisement(c *gin.Context) {
+// CreateAdvertisement for advertiser create
+func CreateAdvertisement(c *gin.Context) {
 
 	var advertismentModel models.Advertisment
 
@@ -153,5 +153,37 @@ func CreateTokenAdvertisement(c *gin.Context) {
 	}
 
 	helper.RespondWithSuccess(c, http.StatusOK, CONSTANTS.AdvertiseCreatedSuccssfully, advertismentModel)
+
+}
+
+// GetAdvertisements to get all advertisments
+func GetAdvertisements(c *gin.Context) {
+
+	resp := []bson.M{}
+	mongoSession := configuration.ConnectDb(config.Database)
+	defer mongoSession.Close()
+
+	sessionCopy := mongoSession.Copy()
+	defer sessionCopy.Close()
+
+	getCollection := sessionCopy.DB(config.Database).C("advertisment")
+
+	query := []bson.M{{
+		"$lookup": bson.M{ // lookup the documents table here
+			"from":         "advertisers",
+			"localField":   "advertiser",
+			"foreignField": "_id",
+			"as":           "advertisers",
+		}},
+	}
+
+	pipe := getCollection.Pipe(query)
+	err := pipe.All(&resp)
+	if err != nil {
+		helper.RespondWithError(c, http.StatusBadRequest, err)
+		return
+	}
+
+	helper.RespondWithSuccess(c, http.StatusOK, CONSTANTS.ListFetchedSuccess, resp)
 
 }
