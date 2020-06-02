@@ -18,6 +18,8 @@ const (
 	AdvertiseCreatedSuccssfully = "advertisement created succssfully"
 	ListFetchedSuccess          = "List fetched successfully"
 	AccountAlreadyExists        = "Account already exists"
+	EmptyReqBody                = "Request Body empty"
+	FileMissing                 = "File is missing"
 	LoggedInSuccess             = "Logged in successfully"
 	AccountNotExists            = "Account doesn't exists"
 	IncorrectPassword           = "Password incorrect"

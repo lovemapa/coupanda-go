@@ -1,16 +1,15 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
-
 	routes "coupanda/advertiseroutes"
+
+	"github.com/gin-gonic/gin"
 )
 
 func router() {
 
 	r := gin.Default()
 
-	r.Use(gin.Recovery())
 	r = routes.AdvertismentRouter()
 
 	r.Run(":8080")

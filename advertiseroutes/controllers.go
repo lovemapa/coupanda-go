@@ -22,18 +22,34 @@ import (
 func Register(c *gin.Context) {
 	var userData models.UserSignup
 
-	userErr := json.NewDecoder(c.Request.Body).Decode(&userData)
-	if userErr != nil {
+	// userErr := json.NewDecoder(c.Request.Body).Decode(&userData)
 
-		helper.RespondWithError(c, http.StatusBadRequest, userErr)
-	}
+	email := c.PostForm("email")
+	firstName := c.PostForm("firstName")
+	lastName := c.PostForm("lastName")
+	password := c.PostForm("password")
+	mobile := c.PostForm("mobile")
+
+	userData.Email = email
+	userData.FirstName = firstName
+	userData.LastName = lastName
+	userData.Password = password
+	userData.Mobile = mobile
+
+	// if userErr != nil {
+
+	// 	helper.RespondWithError(c, http.StatusBadRequest, CONSTANTS.EmptyReqBody)
+	// 	return
+	// }
 	validateInputErr := helper.ValidateSignupInput(userData)
 	if validateInputErr != "" {
 		helper.RespondWithError(c, http.StatusBadRequest, validateInputErr)
+		return
 	}
 	hashedPassword, hashError := bcrypt.GenerateFromPassword([]byte(userData.Password), bcrypt.DefaultCost)
 	if hashError != nil {
 		helper.RespondWithError(c, http.StatusBadRequest, hashError)
+		return
 	}
 	userData.Password = string(hashedPassword)
 	userData.Date = time.Now().Round(time.Millisecond).UnixNano() / (int64(time.Millisecond) / int64(time.Nanosecond))
@@ -66,6 +82,26 @@ func Register(c *gin.Context) {
 	token, _ := helper.CreateToken(userData.ID.Hex())
 	userData.Token = token
 
+	file, FileErr := c.FormFile("file")
+	if file == nil {
+		helper.RespondWithError(c, http.StatusBadRequest, CONSTANTS.FileMissing)
+		return
+	}
+	// fmt.Print(file.Filename)
+
+	if FileErr != nil {
+
+		helper.RespondWithError(c, http.StatusBadRequest, FileErr)
+		return
+
+	}
+	fileName := "static/" + time.Now().Format("2006-01-02 15:04:05.000000") + file.Filename
+	userData.ProfilePhoto = "/" + fileName
+	uploadErr := c.SaveUploadedFile(file, fileName)
+	if uploadErr != nil {
+		helper.RespondWithError(c, http.StatusBadRequest, uploadErr)
+		return
+	}
 	err := getCollection.Insert(userData)
 
 	if err != nil {
@@ -168,13 +204,32 @@ func GetAdvertisements(c *gin.Context) {
 
 	getCollection := sessionCopy.DB(config.Database).C("advertisment")
 
+	email := c.Query("email")
+
+	// var e string
+	// if email != "" {
+	// 	e = email
+	// }
+
 	query := []bson.M{{
-		"$lookup": bson.M{ // lookup the documents table here
+		"$lookup": bson.M{
 			"from":         "advertisers",
 			"localField":   "advertiser",
 			"foreignField": "_id",
 			"as":           "advertisers",
 		}},
+		{
+			"$unwind": "$advertisers",
+		},
+	}
+
+	if email != "" {
+
+		query = append(query, bson.M{
+			"$match": bson.M{
+				"advertisers.email": email,
+			},
+		})
 	}
 
 	pipe := getCollection.Pipe(query)

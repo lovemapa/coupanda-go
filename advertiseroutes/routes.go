@@ -2,6 +2,7 @@ package routes
 
 import (
 	middleware "coupanda/middlewares"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -9,6 +10,7 @@ import (
 // AdvertismentRouter  #router for advertisment
 func AdvertismentRouter() *gin.Engine {
 	r := gin.Default()
+	r.StaticFS("/static", http.Dir("./static"))
 	r.Use(gin.Recovery())
 
 	v1 := r.Group("/v1")

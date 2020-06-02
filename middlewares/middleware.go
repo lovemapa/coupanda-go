@@ -31,7 +31,6 @@ func TokenAuthMiddleware() gin.HandlerFunc {
 	// if requiredToken == "" {
 	// 	log.Fatal("Please set API_TOKEN environment variable")
 	// }
-	fmt.Print("YES")
 	return func(c *gin.Context) {
 
 		if c.Request.Header["Token"] == nil {
