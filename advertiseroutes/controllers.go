@@ -95,7 +95,9 @@ func Register(c *gin.Context) {
 		return
 
 	}
+
 	fileName := "static/" + time.Now().Format("2006-01-02 15:04:05.000000") + file.Filename
+
 	userData.ProfilePhoto = "/" + fileName
 	uploadErr := c.SaveUploadedFile(file, fileName)
 	if uploadErr != nil {
