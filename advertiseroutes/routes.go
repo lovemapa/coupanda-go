@@ -13,6 +13,9 @@ func AdvertismentRouter() *gin.Engine {
 	r.StaticFS("/static", http.Dir("./static"))
 	r.Use(gin.Recovery())
 
+	r.LoadHTMLGlob("templates/*")
+
+	r.GET("/", Welcome)
 	v1 := r.Group("/v1")
 	{
 

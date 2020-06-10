@@ -11,7 +11,7 @@ import (
 func router() {
 
 	r := gin.Default()
-
+	
 	r = routes.AdvertismentRouter()
 	godotenv.Load(".env")
 	port := os.Getenv("PORT")
