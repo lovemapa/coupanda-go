@@ -11,7 +11,7 @@ type UserSignup struct {
 	Token        string        `json:"token" bson:"token"`
 	Mobile       string        `json:"mobile" bson:"mobile"`
 	Password     string        `json:"password" bson:"password"`
-	ProfilePhoto string        `json:ProfilePhoto bson:"ProfilePhoto`
+	ProfilePhoto string        `json:"ProfilePhoto" bson:"ProfilePhoto"`
 	Date         int64         `json:"date" bson:"date"`
 }
 
